@@ -1,15 +1,23 @@
-import { useDispatch } from "react-redux";
+import React, { useState } from 'react';
 import classes from "./EventItem.module.css";
-import { deleteEvents } from "../store/eventsActions";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useSubmit } from "react-router-dom";
+import Modal from './Modal';
 
 function EventItem({ event }) {
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
-  const params = useParams();
+  const [showModal, setShowModal] = useState(false);
+  const submit = useSubmit();
 
   function startDeleteHandler() {
-    dispatch(deleteEvents(params.eventId, navigate));
+    setShowModal(true);
+  }
+
+  function handleConfirm() {
+    setShowModal(false);
+    submit(null, { method: 'delete' });
+  }
+
+  function handleClose() {
+    setShowModal(false);
   }
 
   return (
@@ -22,6 +30,12 @@ function EventItem({ event }) {
         <Link to="edit">Edit</Link>
         <button onClick={startDeleteHandler}>Delete</button>
       </menu>
+      <Modal 
+        show={showModal} 
+        onClose={handleClose} 
+        onConfirm={handleConfirm} 
+        message="Are you sure you want to delete this event?" 
+      />
     </article>
   );
 }

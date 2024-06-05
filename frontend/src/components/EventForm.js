@@ -1,16 +1,8 @@
-import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { Form, useNavigate } from "react-router-dom";
 import classes from "./EventForm.module.css";
 
-function EventForm({ method, event, value }) {
+function EventForm({ method, event }) {
   const navigate = useNavigate();
-
-  const [formData, setFormData] = useState({
-    title: value.title || "",
-    image: value.image || "",
-    date: value.date || "",
-    description: value.description || "",
-  });
 
   function cancelHandler() {
     navigate("..", {
@@ -18,20 +10,10 @@ function EventForm({ method, event, value }) {
     });
   }
 
-  function changeHandler(e) {
-    const { name, value } = e.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-  }
-
   return (
-    <form
-      action="http://localhost:8080/events"
-      method={method}
+    <Form
+      method='post'
       className={classes.form}
-      onSubmit={(e) => event(e)}
     >
       <p>
         <label htmlFor="title">Title</label>
@@ -39,8 +21,7 @@ function EventForm({ method, event, value }) {
           id="title"
           type="text"
           name="title"
-          value={formData.title}
-          onChange={changeHandler}
+          defaultValue={ event ? event.title : '' }
           required
         />
       </p>
@@ -50,8 +31,7 @@ function EventForm({ method, event, value }) {
           id="image"
           type="url"
           name="image"
-          value={formData.image}
-          onChange={changeHandler}
+          defaultValue={ event ?  event.image : '' }
           required
         />
       </p>
@@ -61,8 +41,7 @@ function EventForm({ method, event, value }) {
           id="date"
           type="date"
           name="date"
-          value={formData.date}
-          onChange={changeHandler}
+          defaultValue={ event ?  event.date : '' }
           required
         />
       </p>
@@ -71,8 +50,7 @@ function EventForm({ method, event, value }) {
         <textarea
           id="description"
           name="description"
-          value={formData.description}
-          onChange={changeHandler}
+          defaultValue={event ?  event.description : '' }
           rows="5"
           required
         />
@@ -83,7 +61,7 @@ function EventForm({ method, event, value }) {
         </button>
         <button type="submit">Save</button>
       </div>
-    </form>
+    </Form>
   );
 }
 

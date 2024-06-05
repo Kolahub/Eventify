@@ -1,26 +1,40 @@
-import React from 'react'
-import EventForm from '../components/EventForm'
-import { useDispatch } from 'react-redux';
-import { addEvents } from '../store/eventsActions.js';
-import { useNavigate } from 'react-router-dom';
+import React from "react";
+import EventForm from "../components/EventForm";
+
+import { json, redirect } from "react-router-dom";
 
 function NewEventPage() {
-  const dispatch = useDispatch()
-  const navigate = useNavigate();
-
-
-  function handleSubmit (e) {
-    e.preventDefault()
-    const fd = new FormData(e.target)
-    const eventData = Object.fromEntries(fd.entries())
-    dispatch(addEvents(eventData, navigate))
-    // console.log(eventData);
-    }
-  return (
-    <>
-    <EventForm method={'POST'} event={handleSubmit} value={{}}/>
-    </>
-  )
+  return <EventForm />;
 }
 
-export default NewEventPage
+export default NewEventPage;
+
+export async function action({ request, params }) {
+  const data = await request.formData();
+  console.log(data);
+  const eventData = {
+    title: data.get("title"),
+    image: data.get("image"),
+    date: data.get("date"),
+    description: data.get("description"),
+  };
+
+  const res = await fetch(`http://localhost:8080/events`, {
+    method: "POST",
+    body: JSON.stringify(eventData),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    throw json(
+      { message: "Could not save event." },
+      {
+        status: 500,
+      }
+    );
+  }
+
+  return redirect("/events");
+}

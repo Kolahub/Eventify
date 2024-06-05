@@ -1,21 +1,28 @@
-import React, { useEffect } from "react";
 import EventsList from "../components/EventsList";
-import { useDispatch, useSelector } from "react-redux";
-import { getAllEvents } from "../store/eventsActions";
-import { Link } from 'react-router-dom'
+
+import { json, useLoaderData } from "react-router-dom";
 
 function EventsPage() {
-  const dispatch = useDispatch();
-  const eventsData = useSelector((state) => state.eventData);
+  const data = useLoaderData();
+  const events = data.events
+  console.log(events);
 
-  useEffect(() => {
-    dispatch(getAllEvents());
-  }, [dispatch]);
-
-  return <>
-  <Link to='new' relative='path'>Add New Event</Link>
-  <EventsList events={eventsData} />
-  </>;
+  return (
+    <>
+      <EventsList events={events} />
+    </>
+  );
 }
 
 export default EventsPage;
+
+export async function loader() {
+  const res = await fetch("http://localhost:8080/events");
+  if (!res.ok) {
+    throw json({ message: 'Could not fetch events.'}, {
+      status: 500
+    })
+  } else {
+    return res;
+  }
+}

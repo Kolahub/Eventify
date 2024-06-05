@@ -1,17 +1,9 @@
-import React, { useEffect } from 'react'
 import EventItem from '../components/EventItem'
-import { useDispatch, useSelector } from 'react-redux'
-import { getEventDetails } from '../store/eventsActions'
-import { useParams } from 'react-router-dom'
+import { json, useRouteLoaderData, redirect } from 'react-router-dom'
 
 function EventDetailPage() {
-  const param = useParams()
-  const dispatch = useDispatch()
-  const eventDetails = useSelector(state => state.eventDetails)
-  
-  useEffect(() => {
-    dispatch(getEventDetails(param.eventId))
-  }, [dispatch, param.eventId])
+const data = useRouteLoaderData('event-detail')
+const eventDetails = data.event
 
   return (
     <>
@@ -21,3 +13,32 @@ function EventDetailPage() {
 }
 
 export default EventDetailPage
+
+export async function loader ( { request, params } ) {
+  const id = params.eventId
+  const res = await fetch(`http://localhost:8080/events/${id}`);
+  if (!res.ok) {
+    throw json({message: 'Could get details on this event.'}, {
+      status: 500
+    })
+  } else {
+    return res
+  }
+}
+
+export async function action ({ request, params }) {
+  const eventId = params.eventId
+
+  const res = await fetch(`http://localhost:8080/events/${eventId}`, {
+    method: 'DELETE'
+  })
+  if (!res.ok) {
+    throw json(
+      {message: 'Could not delete event.'},
+      {
+        status: 500,
+      }
+    )
+  }
+  return redirect('/events')
+}
